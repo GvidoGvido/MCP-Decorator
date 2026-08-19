@@ -1,0 +1,6 @@
+{
+  "name": "MCP Decorator",
+  "description": "Intercept, enrich, and superpower Model Context Protocol tools and resources with domain-aware decorators before passing them to LLMs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
