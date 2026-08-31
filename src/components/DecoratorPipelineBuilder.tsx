@@ -25,47 +25,46 @@ export const DecoratorPipelineBuilder: React.FC<DecoratorPipelineBuilderProps> =
   const getCategoryIcon = (category: DecoratorCategory) => {
     switch (category) {
       case "security":
-        return <Shield className="w-4 h-4 text-red-600" />;
+        return <Shield className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />;
       case "compression":
-        return <Zap className="w-4 h-4 text-amber-500" />;
+        return <Zap className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />;
       case "domain":
-        return <Sparkles className="w-4 h-4 text-indigo-600" />;
+        return <Sparkles className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />;
       case "resilience":
-        return <Activity className="w-4 h-4 text-blue-600" />;
+        return <Activity className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />;
       case "sandbox":
-        return <Terminal className="w-4 h-4 text-slate-700" />;
+        return <Terminal className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />;
       case "prompt":
-        return <Sliders className="w-4 h-4 text-purple-600" />;
+        return <Sliders className="w-4 h-4 text-zinc-900 dark:text-zinc-100" />;
     }
   };
 
   const activeCount = decorators.filter((d) => d.enabled).length;
 
   return (
-    <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 rounded-xl p-5 shadow-xs transition-colors">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-            2. Decorators (Steroids Pipeline)
+    <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-3xl p-4 sm:p-7 space-y-5 transition-colors duration-300">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center space-x-2.5">
+          <h2 className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest font-mono">
+            2. Decorator Pipeline (Steroids Engine)
           </h2>
-          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-2xs">
+          <span className="text-[10px] font-bold font-mono px-2.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 shadow-2xs whitespace-nowrap">
             {activeCount}/{decorators.length} ACTIVE
           </span>
         </div>
 
-        <div className="flex items-center space-x-2 text-xs">
+        <div className="flex items-center space-x-2 text-xs font-mono">
           <button
             id="btn-enable-all-steroids"
             onClick={() => onToggleAll(true)}
-            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-bold text-[11px] transition-colors cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap border border-zinc-200 dark:border-zinc-700"
           >
             ENABLE ALL
           </button>
-          <span className="text-slate-300 dark:text-slate-700">|</span>
           <button
             id="btn-disable-all-steroids"
             onClick={() => onToggleAll(false)}
-            className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 font-bold text-[11px] transition-colors cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 font-bold text-[11px] transition-colors cursor-pointer whitespace-nowrap border border-zinc-200 dark:border-zinc-700"
           >
             DISABLE ALL
           </button>
@@ -73,28 +72,28 @@ export const DecoratorPipelineBuilder: React.FC<DecoratorPipelineBuilderProps> =
       </div>
 
       {/* Decorators Stack with Clean Minimalism Pipeline Flow */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5">
         {decorators.map((dec) => {
           return (
             <div
               key={dec.id}
               id={`decorator-card-${dec.id}`}
               onClick={() => onToggleDecorator(dec.id)}
-              className={`p-4 rounded-xl border transition-all cursor-pointer select-none relative overflow-hidden flex flex-col justify-between ${
+              className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer select-none relative overflow-hidden flex flex-col justify-between ${
                 dec.enabled
-                  ? "bg-white/90 dark:bg-slate-800/90 border-indigo-200 dark:border-indigo-800 shadow-xs ring-1 ring-indigo-500/10 dark:ring-indigo-400/20"
-                  : "bg-white/40 dark:bg-slate-800/40 border-slate-200/70 dark:border-slate-700/50 opacity-60 hover:opacity-80"
+                  ? "bg-zinc-50 dark:bg-zinc-800/80 border-zinc-900 dark:border-zinc-100 shadow-xs ring-1 ring-zinc-900/10 dark:ring-zinc-100/10"
+                  : "bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 opacity-60 hover:opacity-85"
               }`}
             >
               <div>
-                <div className="flex items-start justify-between mb-2.5">
+                <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center space-x-2.5">
-                    <div className={`p-1.5 rounded-lg border ${dec.enabled ? "bg-indigo-50/70 dark:bg-indigo-950/70 border-indigo-100 dark:border-indigo-800" : "bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600"}`}>
+                    <div className={`p-2 rounded-xl border ${dec.enabled ? "bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700" : "bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700"}`}>
                       {getCategoryIcon(dec.category)}
                     </div>
                     <div>
-                      <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-tight">{dec.name}</h3>
-                      <span className="text-[9px] font-mono uppercase text-slate-400 dark:text-slate-500 font-medium tracking-wider">
+                      <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 leading-tight">{dec.name}</h3>
+                      <span className="text-[9px] font-mono uppercase text-zinc-400 dark:text-zinc-500 font-semibold tracking-wider">
                         {dec.category}
                       </span>
                     </div>
@@ -102,36 +101,32 @@ export const DecoratorPipelineBuilder: React.FC<DecoratorPipelineBuilderProps> =
 
                   {/* Switch Toggle */}
                   <div
-                    className={`w-8 h-4.5 rounded-full transition-colors relative p-0.5 shrink-0 ${
-                      dec.enabled ? "bg-indigo-600 dark:bg-indigo-500" : "bg-slate-300 dark:bg-slate-600"
+                    className={`w-9 h-5 rounded-full transition-colors relative p-0.5 shrink-0 ${
+                      dec.enabled ? "bg-zinc-900 dark:bg-zinc-100" : "bg-zinc-200 dark:bg-zinc-700"
                     }`}
                   >
                     <div
-                      className={`w-3.5 h-3.5 rounded-full bg-white transition-transform shadow-2xs ${
-                        dec.enabled ? "translate-x-3.5" : "translate-x-0"
+                      className={`w-4 h-4 rounded-full transition-transform shadow-xs ${
+                        dec.enabled ? "translate-x-4 bg-white dark:bg-zinc-900" : "translate-x-0 bg-white"
                       }`}
                     />
                   </div>
                 </div>
 
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-3">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed mb-3.5">
                   {dec.description}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-2.5 border-t border-slate-100 dark:border-slate-700/60 text-[10px] font-medium">
+              <div className="flex items-center justify-between pt-3 border-t border-zinc-200 dark:border-zinc-800 text-[10px] font-medium">
                 {dec.badge ? (
-                  <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase ${
-                    dec.category === "security"
-                      ? "bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800"
-                      : "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800"
-                  }`}>
+                  <span className="px-2.5 py-1 rounded-xl text-[9px] font-mono font-bold uppercase tracking-wider bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 whitespace-nowrap">
                     {dec.badge}
                   </span>
                 ) : (
-                  <span className="text-slate-400 dark:text-slate-500">Standard</span>
+                  <span className="text-zinc-400 dark:text-zinc-500 whitespace-nowrap">Standard</span>
                 )}
-                <span className={`font-mono text-[10px] ${dec.enabled ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-slate-400 dark:text-slate-500"}`}>
+                <span className={`font-mono text-[10px] whitespace-nowrap ${dec.enabled ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-zinc-400 dark:text-zinc-500"}`}>
                   {dec.enabled ? "INTERCEPTING" : "BYPASSED"}
                 </span>
               </div>

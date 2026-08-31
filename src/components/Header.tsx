@@ -12,12 +12,21 @@ import {
   Moon,
   Github,
   Star,
-  GitFork,
   ExternalLink,
   Copy,
   Check,
+  Key,
+  Menu,
+  Layers,
+  LayoutDashboard,
+  Compass,
+  MessageSquare,
+  BookOpen,
+  Bot,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+
+export type AppViewMode = "start" | "studio" | "expansions";
 
 interface HeaderProps {
   darkMode: boolean;
@@ -25,8 +34,15 @@ interface HeaderProps {
   totalTokensSaved: number;
   totalInterceptions: number;
   activeSteroidCount: number;
+  viewMode: AppViewMode;
+  onChangeViewMode: (mode: AppViewMode) => void;
   onOpenExport: () => void;
   onOpenAiSynthesizer: () => void;
+  onOpenApiKeyModal: () => void;
+  onOpenRadar?: () => void;
+  onOpenHowTo?: () => void;
+  onOpenChat?: () => void;
+  hasApiKey: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -35,308 +51,362 @@ export const Header: React.FC<HeaderProps> = ({
   totalTokensSaved,
   totalInterceptions,
   activeSteroidCount,
+  viewMode,
+  onChangeViewMode,
   onOpenExport,
   onOpenAiSynthesizer,
+  onOpenApiKeyModal,
+  onOpenRadar,
+  onOpenHowTo,
+  onOpenChat,
+  hasApiKey,
 }) => {
-  const [showArchInfo, setShowArchInfo] = useState(false);
-  const [showRepoModal, setShowRepoModal] = useState(false);
-  const [copiedClone, setCopiedClone] = useState(false);
-
-  const handleCopyClone = () => {
-    navigator.clipboard.writeText("npx mcp-decorator init --proxy");
-    setCopiedClone(true);
-    setTimeout(() => setCopiedClone(false), 2000);
-  };
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   return (
     <>
       <header
         id="main-header"
-        className="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 shadow-xs transition-colors duration-200"
+        className="border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl sticky top-0 z-40 shadow-2xs transition-colors duration-300 overflow-hidden"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo & Title */}
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-xs shadow-indigo-500/20">
-              <div className="w-3.5 h-3.5 border-2 border-white rotate-45 rounded-xs" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-bold text-slate-900 dark:text-white text-base tracking-tight">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4 flex-nowrap">
+          {/* Left: Logo & Main Mode Tabs */}
+          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 shrink-0">
+            {/* Logo */}
+            <button
+              onClick={() => onChangeViewMode("start")}
+              className="flex items-center space-x-2 sm:space-x-2.5 text-left group cursor-pointer focus:outline-hidden shrink-0"
+              title="Return to Start Overview"
+            >
+              <div className="w-8 h-8 rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform shrink-0 border border-zinc-800 dark:border-zinc-200">
+                <div className="w-3.5 h-3.5 border-2 border-current rotate-45 rounded-xs" />
+              </div>
+              <div className="shrink-0 flex items-center space-x-1.5">
+                <span className="font-bold text-zinc-950 dark:text-zinc-50 text-xs sm:text-base tracking-tight whitespace-nowrap">
                   MCP Decorator
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold uppercase tracking-wider">
-                  Live Engine
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[9px] font-mono font-bold uppercase tracking-wider shrink-0 backdrop-blur-md">
+                  Active Proxy
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
-                Interception & Enrichment Middleware for Model Context Protocol
-              </p>
+            </button>
+
+            {/* Navigation View Switcher (Desktop) */}
+            <div className="hidden md:flex items-center bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700/60 backdrop-blur-md text-xs shrink-0 shadow-inner">
+              <button
+                id="nav-tab-start"
+                onClick={() => onChangeViewMode("start")}
+                className={`px-2.5 py-1.5 xl:px-3.5 xl:py-1.5 rounded-lg font-medium flex items-center space-x-1.5 transition-all duration-200 cursor-pointer shrink-0 whitespace-nowrap active:scale-[0.97] ${
+                  viewMode === "start"
+                    ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-bold border border-zinc-200 dark:border-zinc-700"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
+                }`}
+              >
+                <Compass className={`w-3.5 h-3.5 shrink-0 ${viewMode === "start" ? "text-zinc-900 dark:text-zinc-100" : ""}`} />
+                <span>Overview</span>
+              </button>
+
+              <button
+                id="nav-tab-studio"
+                onClick={() => onChangeViewMode("studio")}
+                className={`px-2.5 py-1.5 xl:px-3.5 xl:py-1.5 rounded-lg font-medium flex items-center space-x-1.5 transition-all duration-200 cursor-pointer shrink-0 whitespace-nowrap active:scale-[0.97] ${
+                  viewMode === "studio"
+                    ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-bold border border-zinc-200 dark:border-zinc-700"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
+                }`}
+              >
+                <LayoutDashboard className={`w-3.5 h-3.5 shrink-0 ${viewMode === "studio" ? "text-zinc-900 dark:text-zinc-100" : ""}`} />
+                <span>Pipeline Studio</span>
+              </button>
+
+              <button
+                id="nav-tab-expansions"
+                onClick={() => onChangeViewMode("expansions")}
+                className={`px-2.5 py-1.5 xl:px-3.5 xl:py-1.5 rounded-lg font-medium flex items-center space-x-1.5 transition-all duration-200 cursor-pointer shrink-0 whitespace-nowrap active:scale-[0.97] ${
+                  viewMode === "expansions"
+                    ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-bold border border-zinc-200 dark:border-zinc-700"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/70 dark:hover:bg-zinc-700/60"
+                }`}
+              >
+                <Layers className={`w-3.5 h-3.5 shrink-0 ${viewMode === "expansions" ? "text-zinc-900 dark:text-zinc-100" : ""}`} />
+                <span>Super-Tools Lab</span>
+              </button>
             </div>
           </div>
 
-          {/* Quick Metrics Bar */}
-          <div className="hidden md:flex items-center space-x-6 text-xs text-slate-500 dark:text-slate-400 font-sans">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-semibold text-slate-900 dark:text-slate-100">{totalInterceptions}</span>
-              <span>Events Intercepted</span>
+          {/* Right: Actions and Live Controls */}
+          <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0 flex-nowrap">
+            {/* Live Metrics Pill */}
+            <div className="hidden 2xl:flex items-center space-x-2.5 px-3 py-1.5 rounded-xl bg-zinc-100/80 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/60 text-xs text-zinc-500 dark:text-zinc-400 font-mono shrink-0 whitespace-nowrap mr-1">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">{totalInterceptions}</span>
+                <span>Events</span>
+              </div>
+              <span className="text-zinc-300 dark:text-zinc-700">|</span>
+              <div className="flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">{activeSteroidCount}</span>
+                <span>Active</span>
+              </div>
+              <span className="text-zinc-300 dark:text-zinc-700">|</span>
+              <div className="flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">~{totalTokensSaved.toLocaleString()}</span>
+                <span>Saved</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              <span className="font-semibold text-indigo-600 dark:text-indigo-400">{activeSteroidCount}</span>
-              <span>Steroids Active</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-amber-500" />
-              <span className="font-semibold text-slate-900 dark:text-slate-100">~{totalTokensSaved.toLocaleString()}</span>
-              <span>Tokens Saved</span>
-            </div>
-          </div>
 
-          {/* Actions */}
-          <div className="flex items-center space-x-2">
-            {/* GitHub Repo Button */}
-            <button
-              id="btn-github-repo"
-              onClick={() => setShowRepoModal(true)}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
-              title="View GitHub Repository"
-            >
-              <Github className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">GitHub</span>
-              <span className="px-1.5 py-0.2 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-mono flex items-center gap-0.5">
-                <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400 inline" />
-                1.4k
-              </span>
-            </button>
+            {/* AI Copilot Button */}
+            {onOpenChat && (
+              <button
+                id="btn-header-ai-copilot"
+                onClick={onOpenChat}
+                className="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap shadow-2xs"
+                title="Ask MCP AI Copilot"
+              >
+                <Bot className="w-3.5 h-3.5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                <span className="hidden sm:inline">AI Copilot</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              </button>
+            )}
 
-            {/* Dark / Light Mode Toggle */}
-            <button
-              id="btn-theme-toggle"
-              onClick={onToggleDarkMode}
-              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs transition-colors cursor-pointer"
-              title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-            </button>
+            {/* MCP Radar Button */}
+            {onOpenRadar && (
+              <button
+                id="btn-header-mcp-radar"
+                onClick={onOpenRadar}
+                className="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap shadow-2xs"
+                title="Trending MCP Ecosystem Radar"
+              >
+                <Compass className="w-3.5 h-3.5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                <span className="hidden md:inline">Radar</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              </button>
+            )}
 
             {/* AI Synthesizer */}
             <button
               id="btn-ai-synthesize"
               onClick={onOpenAiSynthesizer}
-              className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
+              className="hidden lg:flex px-2.5 py-1.5 xl:px-3 xl:py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 text-xs font-medium items-center space-x-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap"
               title="Generate custom decorators using Gemini AI"
             >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              <span className="hidden sm:inline">AI Synthesizer</span>
+              <Sparkles className="w-3.5 h-3.5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+              <span className="hidden xl:inline">AI Synthesizer</span>
             </button>
 
-            {/* Export Config / Deploy */}
+            {/* How-To Visual Guide Button */}
+            {onOpenHowTo && (
+              <button
+                id="btn-header-how-to-guide"
+                onClick={onOpenHowTo}
+                className="hidden xl:flex px-2.5 py-1.5 xl:px-3 xl:py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold items-center space-x-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap"
+                title="Visual How-To Guide & Examples"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-300 shrink-0" />
+                <span>Guide</span>
+              </button>
+            )}
+
+            {/* API Key Modal Button */}
+            <button
+              id="btn-open-api-key"
+              onClick={onOpenApiKeyModal}
+              className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer shrink-0 whitespace-nowrap ${
+                hasApiKey
+                  ? "bg-emerald-50/70 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 shadow-2xs"
+                  : "bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+              }`}
+              title={hasApiKey ? "Gemini API Key is Active" : "Set Custom Gemini API Key"}
+            >
+              <Key className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+              <span className="hidden 2xl:inline">{hasApiKey ? "Key: Active" : "API Key"}</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${hasApiKey ? "bg-emerald-500" : "bg-amber-400 animate-pulse"}`} />
+            </button>
+
+            {/* Theme Toggle */}
+            <button
+              id="btn-theme-toggle"
+              onClick={onToggleDarkMode}
+              className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 text-xs transition-all cursor-pointer shrink-0"
+              title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {darkMode ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-zinc-600" />}
+            </button>
+
+            {/* GitHub Repo Button */}
+            <a
+              id="btn-github-repo-link"
+              href="https://github.com/GvidoGvido/MCP-Decorator"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden sm:flex p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 text-xs transition-all cursor-pointer shrink-0"
+              title="Open GitHub Repository in New Tab"
+            >
+              <Github className="w-3.5 h-3.5 shrink-0" />
+            </a>
+
+            {/* Export Config */}
             <button
               id="btn-export-config"
               onClick={onOpenExport}
-              className="px-3.5 py-1.5 rounded-lg bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-500 text-white font-medium text-xs flex items-center space-x-1.5 transition-colors cursor-pointer shadow-xs"
+              className="px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white font-medium text-xs flex items-center space-x-1.5 transition-all cursor-pointer shadow-xs shrink-0 whitespace-nowrap border border-zinc-800 dark:border-zinc-200"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Deploy</span>
+              <Download className="w-3.5 h-3.5 shrink-0" />
+              <span>Export</span>
             </button>
 
-            {/* Arch Info */}
+            {/* Mobile Navigation Menu Toggle */}
             <button
-              id="btn-arch-info"
-              onClick={() => setShowArchInfo(true)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              title="How MCP Decorator Works in Production"
+              id="btn-mobile-menu"
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="p-2 md:hidden rounded-xl text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer shrink-0"
+              title="Toggle Menu"
             >
-              <Info className="w-4 h-4" />
+              {showMobileMenu ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
         </div>
-      </header>
 
-      {/* GitHub Repository Modal */}
-      <AnimatePresence>
-        {showRepoModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-xs">
+        {/* Mobile Dropdown Navigation Menu */}
+        <AnimatePresence>
+          {showMobileMenu && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 text-slate-900 dark:text-slate-100 shadow-2xl relative"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="lg:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-3.5 space-y-3 text-xs overflow-hidden shadow-lg"
             >
-              <button
-                onClick={() => setShowRepoModal(false)}
-                className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-slate-800 border border-slate-800 dark:border-slate-700 flex items-center justify-center text-white">
-                  <Github className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <h3 className="font-bold text-base text-slate-900 dark:text-white">mcp-decorator / core</h3>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                      v1.4.2
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Open Source Middleware for Model Context Protocol (TypeScript / Rust / Python)
-                  </p>
-                </div>
+              <div className="grid grid-cols-3 gap-2 pb-3 border-b border-zinc-200/80 dark:border-zinc-800/80">
+                <button
+                  id="mobile-nav-tab-start"
+                  onClick={() => {
+                    onChangeViewMode("start");
+                    setShowMobileMenu(false);
+                  }}
+                  className={`p-3 rounded-2xl text-center font-bold text-xs transition-all duration-200 flex flex-col items-center justify-center space-y-1.5 cursor-pointer active:scale-95 border ${
+                    viewMode === "start"
+                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 shadow-md border-zinc-900 dark:border-white ring-1 ring-zinc-900/10"
+                      : "bg-zinc-100/80 dark:bg-zinc-900/80 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/80 dark:hover:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
+                  }`}
+                >
+                  <Compass className={`w-4 h-4 shrink-0 transition-transform duration-200 ${viewMode === "start" ? "scale-110" : "group-hover:rotate-12"}`} />
+                  <span className="font-semibold">Overview</span>
+                </button>
+                <button
+                  id="mobile-nav-tab-studio"
+                  onClick={() => {
+                    onChangeViewMode("studio");
+                    setShowMobileMenu(false);
+                  }}
+                  className={`p-3 rounded-2xl text-center font-bold text-xs transition-all duration-200 flex flex-col items-center justify-center space-y-1.5 cursor-pointer active:scale-95 border ${
+                    viewMode === "studio"
+                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 shadow-md border-zinc-900 dark:border-white ring-1 ring-zinc-900/10"
+                      : "bg-zinc-100/80 dark:bg-zinc-900/80 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/80 dark:hover:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
+                  }`}
+                >
+                  <LayoutDashboard className={`w-4 h-4 shrink-0 transition-transform duration-200 ${viewMode === "studio" ? "scale-110" : ""}`} />
+                  <span className="font-semibold">Studio</span>
+                </button>
+                <button
+                  id="mobile-nav-tab-expansions"
+                  onClick={() => {
+                    onChangeViewMode("expansions");
+                    setShowMobileMenu(false);
+                  }}
+                  className={`p-3 rounded-2xl text-center font-bold text-xs transition-all duration-200 flex flex-col items-center justify-center space-y-1.5 cursor-pointer active:scale-95 border ${
+                    viewMode === "expansions"
+                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 shadow-md border-zinc-900 dark:border-white ring-1 ring-zinc-900/10"
+                      : "bg-zinc-100/80 dark:bg-zinc-900/80 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/80 dark:hover:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
+                  }`}
+                >
+                  <Layers className={`w-4 h-4 shrink-0 transition-transform duration-200 ${viewMode === "expansions" ? "scale-110" : ""}`} />
+                  <span className="font-semibold">Super-Tools</span>
+                </button>
               </div>
 
-              {/* Repo Stats */}
-              <div className="grid grid-cols-3 gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs mb-4">
-                <div className="text-center">
-                  <span className="block text-slate-400 text-[10px] uppercase font-semibold">Stars</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center justify-center gap-1">
-                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> 1,420
-                  </span>
-                </div>
-                <div className="text-center border-x border-slate-200 dark:border-slate-700">
-                  <span className="block text-slate-400 text-[10px] uppercase font-semibold">Forks</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center justify-center gap-1">
-                    <GitFork className="w-3 h-3 text-slate-400" /> 184
-                  </span>
-                </div>
-                <div className="text-center">
-                  <span className="block text-slate-400 text-[10px] uppercase font-semibold">License</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">Apache-2.0</span>
-                </div>
-              </div>
-
-              {/* Quick CLI snippet */}
-              <div className="space-y-2 mb-4">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Quick Install / Run as Stdio Proxy:
-                </label>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-slate-900 text-slate-200 font-mono text-xs border border-slate-800">
-                  <code>npx mcp-decorator init --proxy</code>
+              {/* Mobile Quick Utility Actions */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                {onOpenHowTo && (
                   <button
-                    onClick={handleCopyClone}
-                    className="p-1 rounded text-slate-400 hover:text-white transition-colors cursor-pointer"
-                    title="Copy command"
+                    id="mobile-nav-how-to"
+                    onClick={() => {
+                      onOpenHowTo();
+                      setShowMobileMenu(false);
+                    }}
+                    className="p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold flex items-center space-x-2 cursor-pointer transition-all active:scale-[0.98]"
                   >
-                    {copiedClone ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                    <BookOpen className="w-4 h-4 text-emerald-500" />
+                    <span>How-To Guide</span>
                   </button>
-                </div>
-              </div>
+                )}
 
-              <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                <p>
-                  <strong>How it connects:</strong> Wraps any standard MCP server (e.g., GitHub, Postgres, Memory, Brave Search) over standard I/O pipes or SSE streams, applying AST pruning, PII masking, and contextual enrichment before passing data to Claude Desktop, Cursor, or your backend agent.
-                </p>
-              </div>
+                {onOpenChat && (
+                  <button
+                    id="mobile-nav-chat"
+                    onClick={() => {
+                      onOpenChat();
+                      setShowMobileMenu(false);
+                    }}
+                    className="p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold flex items-center justify-between cursor-pointer transition-all active:scale-[0.98]"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Bot className="w-4 h-4 text-zinc-700 dark:text-zinc-300" />
+                      <span>AI Copilot</span>
+                    </div>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  </button>
+                )}
 
-              <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-800">
-                <a
-                  href="https://github.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline flex items-center space-x-1 cursor-pointer"
-                >
-                  <span>Star on GitHub</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
+                {onOpenRadar && (
+                  <button
+                    id="mobile-nav-radar"
+                    onClick={() => {
+                      onOpenRadar();
+                      setShowMobileMenu(false);
+                    }}
+                    className="p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold flex items-center justify-between cursor-pointer transition-all active:scale-[0.98]"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Compass className="w-4 h-4 text-zinc-700 dark:text-zinc-300" />
+                      <span>Radar</span>
+                    </div>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  </button>
+                )}
+
                 <button
-                  onClick={() => setShowRepoModal(false)}
-                  className="px-4 py-2 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+                  id="mobile-nav-synthesizer"
+                  onClick={() => {
+                    onOpenAiSynthesizer();
+                    setShowMobileMenu(false);
+                  }}
+                  className="p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 font-semibold flex items-center space-x-2 cursor-pointer transition-all active:scale-[0.98]"
                 >
-                  Close
+                  <Sparkles className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+                  <span>Synthesizer</span>
+                </button>
+
+                <button
+                  id="mobile-nav-apikey"
+                  onClick={() => {
+                    onOpenApiKeyModal();
+                    setShowMobileMenu(false);
+                  }}
+                  className="col-span-2 p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 font-medium flex items-center justify-between cursor-pointer transition-all active:scale-[0.98]"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Key className="w-4 h-4 text-zinc-500" />
+                    <span>{hasApiKey ? "Gemini Key: Active" : "Configure API Key"}</span>
+                  </div>
+                  <span className={`w-2 h-2 rounded-full ${hasApiKey ? "bg-emerald-500" : "bg-amber-400 animate-pulse"}`} />
                 </button>
               </div>
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Architecture Explainer Modal */}
-      <AnimatePresence>
-        {showArchInfo && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-xs">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full p-6 text-slate-900 dark:text-slate-100 shadow-2xl relative"
-            >
-              <button
-                onClick={() => setShowArchInfo(false)}
-                className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                  <Activity className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg text-slate-900 dark:text-white">Does this really work in production?</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Yes: Real Stdio Subprocess Interception & JSON-RPC Middleware Architecture</p>
-                </div>
-              </div>
-
-              {/* Diagram */}
-              <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 my-4">
-                <div className="flex flex-col sm:flex-row items-center justify-between text-xs font-mono gap-2.5">
-                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg text-center w-full sm:w-auto shadow-xs">
-                    <span className="text-slate-400 block text-[9px] uppercase font-bold">1. Standard MCP</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">GitHub / SQL / FS / Cloud</span>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-slate-400 hidden sm:block shrink-0" />
-                  <div className="bg-indigo-50/90 dark:bg-indigo-950/70 border border-indigo-200 dark:border-indigo-800 p-2.5 rounded-lg text-center w-full sm:w-auto shadow-xs">
-                    <span className="text-indigo-700 dark:text-indigo-300 block text-[9px] font-bold uppercase tracking-wider">2. Interception Swarm</span>
-                    <span className="text-indigo-900 dark:text-indigo-200 font-bold text-xs">Sentinel • Distiller • Specialist</span>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-slate-400 hidden sm:block shrink-0" />
-                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-2.5 rounded-lg text-center w-full sm:w-auto shadow-xs">
-                    <span className="text-slate-400 block text-[9px] uppercase font-bold">3. Primary Reasoner</span>
-                    <span className="font-bold text-emerald-700 dark:text-emerald-400 text-xs">Gemini 3.7 / Claude / Agent</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                <p>
-                  <strong>How the real implementation works:</strong> MCP communicates via JSON-RPC 2.0 over standard input/output (<code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 dark:text-indigo-400">stdin / stdout</code>) or Server-Sent Events (<code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 dark:text-indigo-400">SSE</code>).
-                </p>
-                <p>
-                  The MCP Decorator proxy acts as a transparent man-in-the-middle. When an LLM client invokes <code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-slate-800 dark:text-slate-200">tools/call</code>, the Decorator intercepts the payload in memory, triggers autonomous pre-flight Micro-Agents (Zero-Trust Sentinel, AST Distiller, Domain Specialist), and supplies distilled, high-accuracy context to the primary reasoner in a single shot.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
-                  <div className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs">
-                    <strong className="text-slate-800 dark:text-slate-200 block mb-0.5">1. Zero Token Waste</strong>
-                    <span>Cuts 60-80% of repetitive AST/lockfile noise before model inference.</span>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs">
-                    <strong className="text-slate-800 dark:text-slate-200 block mb-0.5">2. Multi-Agent Audit</strong>
-                    <span>Autonomous Sentinel & Critic swarm reviews payloads in sub-50ms parallel passes.</span>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs">
-                    <strong className="text-slate-800 dark:text-slate-200 block mb-0.5">3. Domain Intelligence</strong>
-                    <span>Pre-computes diff impact, database joins, and API blast radius automatically.</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => setShowArchInfo(false)}
-                  className="px-4 py-2 bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-                >
-                  Got it
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </header>
     </>
   );
 };
-

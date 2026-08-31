@@ -105,17 +105,46 @@ export interface LlmExecutionComparison {
   timestamp: string;
 }
 
+export interface TrendingMcpItem {
+  id: string;
+  name: string;
+  repo: string;
+  category: "database" | "devtools" | "ai_infra" | "security" | "cloud" | "productivity" | "search";
+  stars: number;
+  weeklyGrowthPercent: number;
+  description: string;
+  toolsCount: number;
+  suggestedSteroids: string[];
+  sampleTool: string;
+  badge?: string;
+  verified: boolean;
+  author: string;
+  scoutReasoning: string;
+  sourceTemplate: McpSource;
+}
+
 export interface SwarmAgentFinding {
   agentId: string;
   agentName: string;
-  agentRole: "security_guardian" | "domain_enricher" | "payload_distiller" | "verification_critic" | "primary_reasoner";
+  agentRole: "security_guardian" | "domain_enricher" | "payload_distiller" | "verification_critic" | "ecosystem_scout" | "primary_reasoner";
   iconName: string;
   avatarColor: string;
-  verdict: "safe" | "enriched" | "distilled" | "verified" | "actionable";
+  verdict: "safe" | "enriched" | "distilled" | "verified" | "actionable" | "scouted";
   durationMs: number;
   contribution: string;
   findings: string[];
+  emittedLogs?: string[];
+  inputSummary?: string;
+  outputSummary?: string;
+  metrics?: {
+    inputTokens: number;
+    outputTokens: number;
+    reductionPercent: number;
+  };
+  recommendedTrendingMcp?: TrendingMcpItem;
 }
+
+export type SwarmAgent = SwarmAgentFinding;
 
 export interface MultiAgentSwarmResult {
   prompt: string;
@@ -127,4 +156,6 @@ export interface MultiAgentSwarmResult {
   totalSwarmLatencyMs: number;
   mode: "live_gemini" | "simulated_local";
   timestamp: string;
+  rawTokensTotal?: number;
+  decoratedTokensTotal?: number;
 }
